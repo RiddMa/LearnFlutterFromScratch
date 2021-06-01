@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:english_words/english_words.dart';
 
@@ -95,8 +96,7 @@ class RandomWordsState extends State<RandomWords> {
               );
             },
           );
-          final divided =
-              ListTile.divideTiles(context: context, tiles: tiles).toList();
+          final divided = ListTile.divideTiles(context: context, tiles: tiles).toList();
           return new Scaffold(
             appBar: new AppBar(
               title: new Text('Saved Suggestions'),

@@ -99,6 +99,7 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   List<TodoItem> todoItems = [];
 
+  ///生成主页 NavBar
   _todoListCupertinoSliverNavigationBar(String title) {
     return CupertinoSliverNavigationBar(
       largeTitle: Text(title),
@@ -114,29 +115,28 @@ class _TodoListState extends State<TodoList> {
     );
   }
 
+  /// 生成主页 TodoList 项
   _todoListSliverChildBuilderDelegate() {
     return SliverChildBuilderDelegate(
       (BuildContext context, int index) {
-        for (int i = 0; i < todoItems.length; i++) {
-          return CupertinoListTile(
-            leading: FlutterLogo(size: 56.0),
-            title: Text(todoItems[i].name),
-            subtitle: Text(i.toString()),
-          );
-        }
+        return CupertinoListTile(
+          leading: FlutterLogo(size: 56.0),
+          title: Text(todoItems[index].name),
+          subtitle: Text(index.toString()),
+        );
       },
+      childCount: todoItems.length,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
-      semanticChildCount: 10,
       slivers: <Widget>[
         _todoListCupertinoSliverNavigationBar('Ridd\'s Todo App'),
         SliverSafeArea(
           top: false,
-          minimum: const EdgeInsets.only(top: 12.0),
+          minimum: const EdgeInsets.only(top: 10.0),
           sliver: SliverList(
             delegate: _todoListSliverChildBuilderDelegate(),
           ),

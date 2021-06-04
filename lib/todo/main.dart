@@ -1,14 +1,33 @@
-import 'dart:ffi';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cupertino_list_tile/cupertino_list_tile.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'package:my_flutter_app/todo/Settings.dart';
-import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
+import 'EditTodo.dart';
 import 'NewTodo.dart';
 
 void main() => runApp(RiddTodoApp());
+
+vibrate(String type) async {
+  switch (type) {
+    case 'heavy':
+      HapticFeedback.heavyImpact();
+      break;
+    case 'medium':
+      HapticFeedback.mediumImpact();
+      break;
+    case 'light':
+      HapticFeedback.lightImpact();
+      break;
+    case 'click':
+    case 'medium':
+      HapticFeedback.selectionClick();
+      break;
+  }
+}
 
 class RiddTodoApp extends StatelessWidget {
   @override
@@ -119,18 +138,88 @@ class TodoMain extends StatelessWidget {
   }
 }
 
-///todoItem 条目
-class TodoItem extends StatelessWidget {
-  TodoItem({required Key key, required this.name}) : super(key: key);
+// ignore: must_be_immutable
+class TodoItem extends StatefulWidget {
+  TodoItem({
+    required Key key,
+    required this.title,
+    required this.isAllDay,
+    required this.dueDate,
+    required this.repeat,
+    required this.remind,
+    required this.note,
+    required this.done,
+  }) : super(key: key);
 
-  final String name;
+  String title;
+  bool isAllDay;
+  DateTime dueDate;
+  String repeat;
+  String remind;
+  String note;
+  bool done;
 
   @override
+  State<StatefulWidget> createState() => _TodoItemState();
+}
+
+///todoItem 条目
+class _TodoItemState extends State<TodoItem> {
+  String _formatDate(DateTime srcDate) {
+    if (widget.isAllDay) {
+      return DateFormat('yyyy-MM-dd').format(srcDate);
+    } else {
+      return DateFormat('yyyy-MM-dd – kk:mm').format(srcDate);
+    }
+  }
+
+  ///构造todoItem条目
+  @override
   Widget build(BuildContext context) {
+    print(widget.dueDate);
     return CupertinoListTile(
-      leading: FlutterLogo(size: 56.0),
-      title: Text(name),
-      subtitle: Text('Second line...'),
+      leading: CupertinoButton(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(0),
+        onPressed: () => vibrate('heavy'),
+        child: Icon(
+          CupertinoIcons.check_mark_circled,
+          size: 30,
+        ),
+      ),
+
+      // Container(
+      //   constraints: BoxConstraints.tightFor(width: 40, height: 40),
+      //   alignment: Alignment.center,
+      //   child: CupertinoButton(
+      //     alignment: Alignment.center,
+      //     onPressed: () => vibrate('heavy'),
+      //     child: Icon(
+      //       CupertinoIcons.check_mark_circled,
+      //       size: 30,
+      //     ),
+      //   ),
+      // ),
+      title: Container(
+        alignment: Alignment.centerLeft,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.title,
+              textScaleFactor: 1.25,
+            ),
+            Text(
+              "Due: " + _formatDate(widget.dueDate),
+              textScaleFactor: 0.75,
+            ),
+          ],
+        ),
+      ),
+      onTap: () async {
+        vibrate('light');
+        var result = await Navigator.push(context, new CupertinoPageRoute(builder: (context) => EditTodo()));
+      },
     );
   }
 }
@@ -152,12 +241,22 @@ class _TodoListState extends State<TodoList> {
         padding: const EdgeInsets.all(0),
         child: Icon(CupertinoIcons.add),
         onPressed: () async {
+          vibrate('light');
           var result = await Navigator.push(context, new CupertinoPageRoute(builder: (context) => NewTodo()));
-          print("$result");
-          // setState(() {
-          //   todoItems.add(TodoItem(key: Key(todoItems.length.toString()), name: 'test' + todoItems.length.toString()));
-          //   // print(todoItems.length);
-          // });
+          setState(() {
+            if (result != null) {
+              todoItems.add(TodoItem(
+                key: Key(result[2].toString()),
+                title: result[0],
+                isAllDay: result[1],
+                dueDate: result[2],
+                repeat: result[3],
+                remind: result[4],
+                note: result[5],
+                done: false,
+              ));
+            }
+          });
         },
       ),
     );
@@ -167,11 +266,7 @@ class _TodoListState extends State<TodoList> {
   _todoListSliverChildBuilderDelegate() {
     return SliverChildBuilderDelegate(
       (BuildContext context, int index) {
-        return CupertinoListTile(
-          leading: FlutterLogo(size: 56.0),
-          title: Text(todoItems[index].name),
-          subtitle: Text(index.toString()),
-        );
+        return todoItems[index];
       },
       childCount: todoItems.length,
     );

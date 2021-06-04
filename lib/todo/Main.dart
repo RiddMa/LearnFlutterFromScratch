@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 import 'EditTodo.dart';
 import 'NewTodo.dart';
+import 'dart:io';
 
 void main() => runApp(RiddTodoApp());
 
@@ -35,7 +36,7 @@ class RiddTodoApp extends StatelessWidget {
     return CupertinoApp(
       title: 'Ridd\'s Todo App',
       debugShowCheckedModeBanner: false,
-      theme: CupertinoThemeData(brightness: Brightness.light),
+      // theme: CupertinoThemeData(brightness: Brightness.light),
       routes: <String, WidgetBuilder>{
         "/": (context) => TodoMain(),
         "newTodo": (context) => TipRoute(key: Key("some key")),
@@ -138,7 +139,6 @@ class TodoMain extends StatelessWidget {
   }
 }
 
-// ignore: must_be_immutable
 class TodoItem extends StatefulWidget {
   TodoItem({
     required Key key,
@@ -159,11 +159,22 @@ class TodoItem extends StatefulWidget {
   String note;
   bool done;
 
+  ///更新自身状态
+  setTodoItem(TodoItem newItem) {
+    this.title = newItem.title;
+    this.isAllDay = newItem.isAllDay;
+    this.dueDate = newItem.dueDate;
+    this.repeat = newItem.repeat;
+    this.remind = newItem.remind;
+    this.note = newItem.note;
+    this.done = newItem.done;
+  }
+
   @override
   State<StatefulWidget> createState() => _TodoItemState();
 }
 
-///todoItem 条目
+///todoItem条目状态
 class _TodoItemState extends State<TodoItem> {
   String _formatDate(DateTime srcDate) {
     if (widget.isAllDay) {
@@ -173,33 +184,36 @@ class _TodoItemState extends State<TodoItem> {
     }
   }
 
+  Widget _getFinishedIcon() {
+    if (widget.done) {
+      return Icon(
+        CupertinoIcons.check_mark_circled_solid,
+        size: 30,
+      );
+    } else {
+      return Icon(
+        CupertinoIcons.check_mark_circled,
+        size: 30,
+      );
+    }
+  }
+
   ///构造todoItem条目
   @override
   Widget build(BuildContext context) {
-    print(widget.dueDate);
     return CupertinoListTile(
+      contentPadding: const EdgeInsets.only(top: 1.0, bottom: 1.0, left: 4.0, right: 4.0),
       leading: CupertinoButton(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(0),
-        onPressed: () => vibrate('heavy'),
-        child: Icon(
-          CupertinoIcons.check_mark_circled,
-          size: 30,
-        ),
+        onPressed: () {
+          vibrate('heavy');
+          setState(() {
+            widget.done = !widget.done;
+          });
+        },
+        child: _getFinishedIcon(),
       ),
-
-      // Container(
-      //   constraints: BoxConstraints.tightFor(width: 40, height: 40),
-      //   alignment: Alignment.center,
-      //   child: CupertinoButton(
-      //     alignment: Alignment.center,
-      //     onPressed: () => vibrate('heavy'),
-      //     child: Icon(
-      //       CupertinoIcons.check_mark_circled,
-      //       size: 30,
-      //     ),
-      //   ),
-      // ),
       title: Container(
         alignment: Alignment.centerLeft,
         child: Column(
@@ -208,17 +222,33 @@ class _TodoItemState extends State<TodoItem> {
             Text(
               widget.title,
               textScaleFactor: 1.25,
+              softWrap: true,
+              maxLines: 1,
             ),
             Text(
               "Due: " + _formatDate(widget.dueDate),
               textScaleFactor: 0.75,
+              softWrap: true,
+              maxLines: 1,
             ),
           ],
         ),
       ),
       onTap: () async {
         vibrate('light');
-        var result = await Navigator.push(context, new CupertinoPageRoute(builder: (context) => EditTodo()));
+        var resultTodoItem = await Navigator.push(
+            context,
+            new CupertinoPageRoute(
+                builder: (context) =>
+                    EditTodo(
+                      mode: 'Edit',
+                      parentTodoItem: widget,
+                    )));
+        if (resultTodoItem != null) {
+          setState(() {
+            widget.setTodoItem(resultTodoItem);
+          });
+        }
       },
     );
   }
@@ -242,19 +272,16 @@ class _TodoListState extends State<TodoList> {
         child: Icon(CupertinoIcons.add),
         onPressed: () async {
           vibrate('light');
-          var result = await Navigator.push(context, new CupertinoPageRoute(builder: (context) => NewTodo()));
+          var resultTodoItem = await Navigator.push(
+              context,
+              new CupertinoPageRoute(
+                  builder: (context) =>
+                      EditTodo(
+                        mode: 'Add',
+                      )));
           setState(() {
-            if (result != null) {
-              todoItems.add(TodoItem(
-                key: Key(result[2].toString()),
-                title: result[0],
-                isAllDay: result[1],
-                dueDate: result[2],
-                repeat: result[3],
-                remind: result[4],
-                note: result[5],
-                done: false,
-              ));
+            if (resultTodoItem != null) {
+              todoItems.add(resultTodoItem);
             }
           });
         },
@@ -265,7 +292,7 @@ class _TodoListState extends State<TodoList> {
   ///生成主页 TodoList 项
   _todoListSliverChildBuilderDelegate() {
     return SliverChildBuilderDelegate(
-      (BuildContext context, int index) {
+          (BuildContext context, int index) {
         return todoItems[index];
       },
       childCount: todoItems.length,
@@ -276,7 +303,7 @@ class _TodoListState extends State<TodoList> {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: <Widget>[
-        _todoListCupertinoSliverNavigationBar('Ridd\'s Todo App'),
+        _todoListCupertinoSliverNavigationBar('Ridd\'s Todo'),
         SliverSafeArea(
           top: false,
           minimum: const EdgeInsets.only(top: 10.0),

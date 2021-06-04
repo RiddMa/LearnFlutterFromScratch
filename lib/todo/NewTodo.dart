@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:my_flutter_app/todo/main.dart';
+import 'package:my_flutter_app/todo/Main.dart';
 
 class NewTodo extends StatefulWidget {
   @override

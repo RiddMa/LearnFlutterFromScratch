@@ -17,15 +17,68 @@ class _TodoSettingsState extends State<TodoSettings> {
   }
 
   _todoSettingsSliverChildBuilderDelegate() {
+    List<Widget> settingItems = [
+      CupertinoFormSection(
+        header: Text('Personal'),
+        children: [
+          CupertinoFormRow(
+            child: Text('aaa'),
+          ),
+          CupertinoFormRow(
+            child: Text('bbb'),
+          )
+        ],
+      ),
+      CupertinoFormSection(
+        header: Text('General'),
+        children: [
+          CupertinoFormRow(
+            child: Text('aaa'),
+          ),
+          CupertinoFormRow(
+            child: Text('bbb'),
+          )
+        ],
+      ),
+      CupertinoFormSection(
+        header: Text('Lists'),
+        children: [
+          CupertinoFormRow(
+            child: Text('aaa'),
+          ),
+          CupertinoFormRow(
+            child: Text('bbb'),
+          )
+        ],
+      ),
+      CupertinoFormSection(
+        header: Text('Notifications'),
+        children: [
+          CupertinoFormRow(
+            child: Text('aaa'),
+          ),
+          CupertinoFormRow(
+            child: Text('bbb'),
+          )
+        ],
+      ),
+      CupertinoFormSection(
+        header: Text('About'),
+        children: [
+          CupertinoFormRow(
+            child: Text('aaa'),
+          ),
+          CupertinoFormRow(
+            child: Text('bbb'),
+          )
+        ],
+      ),
+    ];
     return SliverChildBuilderDelegate(
       (BuildContext context, int index) {
-        return CupertinoListTile(
-          leading: FlutterLogo(size: 56.0),
-          title: Text("Setting"),
-          subtitle: Text('Second line...'),
-        );
+        return settingItems[index];
       },
-      childCount: 20,
+      childCount: settingItems.length,
     );
   }
 
@@ -37,7 +90,8 @@ class _TodoSettingsState extends State<TodoSettings> {
         _todoListCupertinoSliverNavigationBar('Settings'),
         SliverSafeArea(
           top: false,
-          minimum: const EdgeInsets.only(top: 12.0),
+          bottom: false,
+          // minimum: const EdgeInsets.only(top: 10.0),
           sliver: SliverList(
             delegate: _todoSettingsSliverChildBuilderDelegate(),
           ),

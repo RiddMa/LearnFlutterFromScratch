@@ -3,9 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Main.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
+
+import 'TodoItem.dart';
 
 class DBProvider {
   static final DBProvider _instance = new DBProvider.internal();

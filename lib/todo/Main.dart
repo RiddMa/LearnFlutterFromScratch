@@ -3,14 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:cupertino_list_tile/cupertino_list_tile.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
+import 'package:my_flutter_app/todo/FileOperations.dart';
 import 'package:my_flutter_app/todo/Settings.dart';
 import 'package:intl/intl.dart';
 
 import 'EditTodo.dart';
-import 'NewTodo.dart';
-import 'dart:io';
 
 void main() => runApp(RiddTodoApp());
+
+class RiddTodoApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoApp(
+      title: 'Ridd\'s Todo App',
+      debugShowCheckedModeBanner: false,
+      // theme: CupertinoThemeData(brightness: Brightness.light),
+      routes: <String, WidgetBuilder>{
+        "/": (context) => TodoMain(),
+      },
+    );
+  }
+}
 
 vibrate(String type) async {
   switch (type) {
@@ -27,61 +40,6 @@ vibrate(String type) async {
     case 'medium':
       HapticFeedback.selectionClick();
       break;
-  }
-}
-
-class RiddTodoApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoApp(
-      title: 'Ridd\'s Todo App',
-      debugShowCheckedModeBanner: false,
-      // theme: CupertinoThemeData(brightness: Brightness.light),
-      routes: <String, WidgetBuilder>{
-        "/": (context) => TodoMain(),
-        "newTodo": (context) => TipRoute(key: Key("some key")),
-      },
-      // onGenerateRoute: (RouteSettings settings) {
-      //   final String? routeName = settings.name;
-      //   final Object? args = settings.arguments;
-      //   switch (routeName) {
-      //     case '/newTodo':
-      //       return CupertinoPageRoute(
-      //         builder: (context) => NewTodo(),
-      //         settings: settings,
-      //       );
-      //   }
-      // },
-    );
-  }
-}
-
-class TipRoute extends StatelessWidget {
-  TipRoute({
-    required Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: new AppBar(
-        title: Text("提示"),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(18.0),
-        child: Center(
-          child: Column(
-            children: [
-              Text('text'),
-              CupertinoButton.filled(
-                onPressed: () => Navigator.pop(context, ["我是返回值1", "我是返回值2"]),
-                child: Text("返回"),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 
@@ -139,6 +97,9 @@ class TodoMain extends StatelessWidget {
   }
 }
 
+class TodoItemPrototype {}
+
+// ignore: must_be_immutable
 class TodoItem extends StatefulWidget {
   TodoItem({
     required Key key,
@@ -151,13 +112,24 @@ class TodoItem extends StatefulWidget {
     required this.done,
   }) : super(key: key);
 
-  String title;
-  bool isAllDay;
-  DateTime dueDate;
-  String repeat;
-  String remind;
-  String note;
-  bool done;
+  TodoItem.fromJson(Map<String, dynamic> todoJson) {
+    Key key = todoJson['key'];
+    title = todoJson['title'];
+    isAllDay = todoJson['isAllDay'] == 1 ? true : false;
+    dueDate = DateTime.parse(todoJson['dueDate']);
+    repeat = todoJson['repeat'];
+    remind = todoJson['remind'];
+    note = todoJson['note'];
+    done = todoJson['isAllDay'] == 1 ? true : false;
+  }
+
+  late String title;
+  late bool isAllDay;
+  late DateTime dueDate;
+  late String repeat;
+  late String remind;
+  late String note;
+  late bool done;
 
   ///更新自身状态
   setTodoItem(TodoItem newItem) {
@@ -168,6 +140,20 @@ class TodoItem extends StatefulWidget {
     this.remind = newItem.remind;
     this.note = newItem.note;
     this.done = newItem.done;
+  }
+
+  ///映射到数据库
+  Map<String, dynamic> toJson() {
+    return {
+      'key': key.toString().substring(3, 29),
+      'title': title,
+      'isAllDay': (isAllDay ? 1 : 0),
+      'dueDate': dueDate.toIso8601String(),
+      'repeat': repeat,
+      'remind': remind,
+      'note': note,
+      'done': (done ? 1 : 0),
+    };
   }
 
   @override
@@ -198,20 +184,41 @@ class _TodoItemState extends State<TodoItem> {
     }
   }
 
-  ///构造todoItem条目
-  @override
-  Widget build(BuildContext context) {
+  ///点击按钮切换完成状态
+  void _handleLeadingBtnPress() async {
+    HapticFeedback.heavyImpact();
+    setState(() {
+      widget.done = !widget.done;
+    });
+    DBProvider().updateTodoItem(widget); //这里不用等
+  }
+
+  ///点击条目进入编辑
+  void _handleItemTap() async {
+    HapticFeedback.lightImpact();
+    var resultTodoItem = await Navigator.push(
+        context,
+        new CupertinoPageRoute(
+            builder: (context) => EditTodo(
+                  mode: 'Edit',
+                  parentTodoItem: widget,
+                )));
+    if (resultTodoItem != null) {
+      setState(() {
+        widget.setTodoItem(resultTodoItem);
+      });
+      DBProvider().updateTodoItem(widget); //这里不用等
+
+    }
+  }
+
+  _buildListTile() {
     return CupertinoListTile(
       contentPadding: const EdgeInsets.only(top: 1.0, bottom: 1.0, left: 4.0, right: 4.0),
       leading: CupertinoButton(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(0),
-        onPressed: () {
-          vibrate('heavy');
-          setState(() {
-            widget.done = !widget.done;
-          });
-        },
+        onPressed: _handleLeadingBtnPress,
         child: _getFinishedIcon(),
       ),
       title: Container(
@@ -234,23 +241,14 @@ class _TodoItemState extends State<TodoItem> {
           ],
         ),
       ),
-      onTap: () async {
-        vibrate('light');
-        var resultTodoItem = await Navigator.push(
-            context,
-            new CupertinoPageRoute(
-                builder: (context) =>
-                    EditTodo(
-                      mode: 'Edit',
-                      parentTodoItem: widget,
-                    )));
-        if (resultTodoItem != null) {
-          setState(() {
-            widget.setTodoItem(resultTodoItem);
-          });
-        }
-      },
+      onTap: _handleItemTap,
     );
+  }
+
+  ///构造todoItem条目
+  @override
+  Widget build(BuildContext context) {
+    return _buildListTile();
   }
 }
 
@@ -263,36 +261,93 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
   List<TodoItem> todoItems = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadTodoItemsFromDB();
+  }
+
+  void _loadTodoItemsFromDB() async {
+    todoItems = await DBProvider().getAllTodoItems();
+    setState(() {});
+  }
+
+  void _handleAddBtnPress() async {
+    HapticFeedback.lightImpact();
+    var resultTodoItem = await Navigator.push(
+        context,
+        new CupertinoPageRoute(
+            builder: (context) => EditTodo(
+                  mode: 'Add',
+                )));
+    if (resultTodoItem != null) {
+      setState(() {
+        todoItems.add(resultTodoItem);
+      });
+      DBProvider().insertTodoItem(resultTodoItem); //这里不用等
+
+    }
+  }
+
   ///生成主页 NavBar
   _todoListCupertinoSliverNavigationBar(String title) {
     return CupertinoSliverNavigationBar(
-      largeTitle: Text(title),
-      trailing: CupertinoButton(
-        padding: const EdgeInsets.all(0),
-        child: Icon(CupertinoIcons.add),
+      // largeTitle: Text(title),
+      largeTitle: CupertinoButton(
+        child: Text(title), //todo:删掉按钮
         onPressed: () async {
-          vibrate('light');
-          var resultTodoItem = await Navigator.push(
-              context,
-              new CupertinoPageRoute(
-                  builder: (context) =>
-                      EditTodo(
-                        mode: 'Add',
-                      )));
           setState(() {
-            if (resultTodoItem != null) {
-              todoItems.add(resultTodoItem);
-            }
+            todoItems.clear();
+            _loadTodoItemsFromDB();
           });
         },
       ),
+      trailing: CupertinoButton(
+        padding: const EdgeInsets.all(0),
+        child: Icon(CupertinoIcons.add),
+        onPressed: _handleAddBtnPress,
+      ),
     );
+  }
+
+  ///处理滑动删除操作
+  void _handleDismiss(DismissDirection direction, int index) async {
+    DBProvider().deleteTodoItem(todoItems[index]); //这里不用等
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text(todoItems[index].title + ' deleted'),
+    // ));
+
+    todoItems.removeAt(index);
+    setState(() {});
   }
 
   ///生成主页 TodoList 项
   _todoListSliverChildBuilderDelegate() {
     return SliverChildBuilderDelegate(
-          (BuildContext context, int index) {
+      (BuildContext context, int index) {
+        return Dismissible(
+          key: todoItems[index].key!,
+          onDismissed: (direction) => {_handleDismiss(direction, index)},
+          background: Container(
+            color: CupertinoColors.activeBlue,
+            child: CupertinoListTile(
+              leading: Icon(
+                CupertinoIcons.star,
+                color: CupertinoColors.white,
+              ),
+            ),
+          ),
+          secondaryBackground: Container(
+            color: CupertinoColors.destructiveRed,
+            child: CupertinoListTile(
+              trailing: Icon(
+                CupertinoIcons.delete,
+                color: CupertinoColors.white,
+              ),
+            ),
+          ),
+          child: todoItems[index],
+        );
         return todoItems[index];
       },
       childCount: todoItems.length,
@@ -303,7 +358,7 @@ class _TodoListState extends State<TodoList> {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: <Widget>[
-        _todoListCupertinoSliverNavigationBar('Ridd\'s Todo'),
+        _todoListCupertinoSliverNavigationBar('Ridd\'s Todo '),
         SliverSafeArea(
           top: false,
           minimum: const EdgeInsets.only(top: 10.0),

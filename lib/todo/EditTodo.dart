@@ -7,7 +7,7 @@ import 'Main.dart';
 class EditTodo extends StatefulWidget {
   EditTodo({required this.mode, TodoItem? parentTodoItem}) {
     if (mode == 'Add') {
-      todoItem = TodoItem(
+      _todoItem = TodoItem(
         key: Key(DateTime.now().toString()),
         title: '',
         isAllDay: true,
@@ -18,21 +18,22 @@ class EditTodo extends StatefulWidget {
         done: false,
       );
     } else if (mode == 'Edit') {
-      todoItem = parentTodoItem!;
+      _todoItem = parentTodoItem!;
     }
   }
 
-  late TodoItem todoItem;
+  static var _todoItem;
   final String mode;
 
   @override
   State<StatefulWidget> createState() {
-    return _EditTodoState(todoItem);
+    return _EditTodoState(_todoItem);
   }
 }
 
 class _EditTodoState extends State<EditTodo> {
   _EditTodoState(TodoItem parentItem) {
+    this._key = parentItem.key;
     this._titleController = TextEditingController(text: parentItem.title);
     this._isAllDay = parentItem.isAllDay;
     this._dueDate = parentItem.dueDate;
@@ -45,13 +46,28 @@ class _EditTodoState extends State<EditTodo> {
   final double _dateTimePickerHeight = 192;
   final double _formRowHeight = 40;
 
-  late TextEditingController _titleController;
-  late bool _isAllDay;
-  late DateTime _dueDate;
-  late TextEditingController _repeatController;
-  late TextEditingController _remindController;
-  late TextEditingController _noteController;
-  late bool _done;
+  var _key;
+  var _titleController;
+  var _isAllDay;
+  var _dueDate;
+  var _repeatController;
+  var _remindController;
+  var _noteController;
+  var _done;
+
+  ///编辑完成退出界面并返回新的Todo对象
+  _handleDoneBtnPress() async {
+    Navigator.of(context).pop(TodoItem(
+      key: _key,
+      title: _titleController.text,
+      isAllDay: _isAllDay,
+      dueDate: _dueDate,
+      repeat: _repeatController.text,
+      remind: _remindController.text,
+      note: _noteController.text,
+      done: _done,
+    ));
+  }
 
   ///生成NavBar
   _newTodoNavigationBar(String title) {
@@ -63,18 +79,7 @@ class _EditTodoState extends State<EditTodo> {
       trailing: CupertinoButton(
         child: Text('Done'),
         padding: const EdgeInsets.all(0),
-        onPressed: () {
-          Navigator.of(context).pop(TodoItem(
-            key: Key(DateTime.now().toString()),
-            title: _titleController.text,
-            isAllDay: _isAllDay,
-            dueDate: _dueDate,
-            repeat: _repeatController.text,
-            remind: _remindController.text,
-            note: _noteController.text,
-            done: _done,
-          ));
-        },
+        onPressed: _handleDoneBtnPress,
       ),
     );
   }
@@ -163,7 +168,7 @@ class _EditTodoState extends State<EditTodo> {
         child: CupertinoDatePicker(
           key: Key('date'),
           mode: CupertinoDatePickerMode.date,
-          initialDateTime: widget.todoItem.dueDate,
+          initialDateTime: _dueDate,
           onDateTimeChanged: (newDateTime) {
             setState(() {
               _dueDate = newDateTime;

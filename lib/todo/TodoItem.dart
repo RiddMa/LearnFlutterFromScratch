@@ -1,5 +1,6 @@
 import 'package:cupertino_list_tile/cupertino_list_tile.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -47,6 +48,15 @@ class TodoItem extends StatefulWidget {
     this.remind = newItem.remind;
     this.note = newItem.note;
     this.done = newItem.done;
+  }
+
+  void update({title, isAllDay, dueDate, repeat, remind, note, done}) {
+    // switch (property.toString()) {
+    //   case 'title':widget.title = property;
+    //   case 'isAllDay'
+    // }
+    this.title = title!;
+    this.done = done!;
   }
 
   ///映射到数据库
@@ -120,35 +130,81 @@ class _TodoItemState extends State<TodoItem> {
   }
 
   _buildListTile() {
-    return CupertinoListTile(
-      contentPadding: const EdgeInsets.only(top: 1.0, bottom: 1.0, left: 4.0, right: 4.0),
-      leading: CupertinoButton(
+    // return CupertinoListTile(
+    //   contentPadding: const EdgeInsets.only(top: 1.0, bottom: 1.0, left: 4.0, right: 4.0),
+    //   leading: CupertinoButton(
+    //     alignment: Alignment.center,
+    //     padding: const EdgeInsets.all(0),
+    //     onPressed: _handleLeadingBtnPress,
+    //     child: _getFinishedIcon(),
+    //   ),
+    //   title: Container(
+    //     alignment: Alignment.centerLeft,
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         Text(
+    //           widget.title,
+    //           textScaleFactor: 1.25,
+    //           softWrap: true,
+    //           maxLines: 1,
+    //         ),
+    //         Text(
+    //           "Due: " + _formatDate(widget.dueDate),
+    //           textScaleFactor: 0.75,
+    //           softWrap: true,
+    //           maxLines: 1,
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    //   onTap: _handleItemTap,
+    // );
+    return CupertinoFormRow(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+      prefix: CupertinoButton(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(0),
         onPressed: _handleLeadingBtnPress,
         child: _getFinishedIcon(),
       ),
-      title: Container(
-        alignment: Alignment.centerLeft,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.title,
-              textScaleFactor: 1.25,
-              softWrap: true,
-              maxLines: 1,
-            ),
-            Text(
-              "Due: " + _formatDate(widget.dueDate),
-              textScaleFactor: 0.75,
-              softWrap: true,
-              maxLines: 1,
-            ),
-          ],
-        ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _handleItemTap,
+        child: Container(
+            padding: const EdgeInsets.only(left: 6.0,right: 6.0),
+            alignment: Alignment.centerLeft,
+            child: Row(
+              // mainAxisSize: MainAxisSize.min,
+              // mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title,
+                      textScaleFactor: 1.25,
+                      softWrap: true,
+                      maxLines: 1,
+                    ),
+                    Text(
+                      "Due: " + _formatDate(widget.dueDate),
+                      textScaleFactor: 0.75,
+                      softWrap: true,
+                      maxLines: 1,
+                    ),
+                  ],
+                ),
+                Expanded(child: Container()),
+                Container(
+                  alignment: Alignment.centerRight,
+                  child: Icon(CupertinoIcons.right_chevron),
+                ),
+              ],
+            )),
       ),
-      onTap: _handleItemTap,
     );
   }
 

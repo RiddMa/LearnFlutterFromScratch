@@ -91,7 +91,6 @@ class _TodoSettingsState extends State<TodoSettings> {
         SliverSafeArea(
           top: false,
           bottom: false,
-          // minimum: const EdgeInsets.only(top: 10.0),
           sliver: SliverList(
             delegate: _todoSettingsSliverChildBuilderDelegate(),
           ),

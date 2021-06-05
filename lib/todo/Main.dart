@@ -16,11 +16,54 @@ class RiddTodoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
-      title: 'Ridd\'s Todo App',
+      title: 'Ridd\'s Todo',
       debugShowCheckedModeBanner: false,
       // theme: CupertinoThemeData(brightness: Brightness.light),
       routes: <String, WidgetBuilder>{
-        "/": (context) => TodoMain(),
+        "/": (context) => TodoMainRoute(),
+      },
+    );
+  }
+}
+
+///主界面
+class TodoMainRoute extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoTabScaffold(
+      backgroundColor: CupertinoColors.systemGroupedBackground,
+      tabBar: CupertinoTabBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.home),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.settings),
+          ),
+        ],
+      ),
+      tabBuilder: (BuildContext context, int index) {
+        switch (index) {
+          case 0:
+            return CupertinoTabView(
+              builder: (BuildContext context) {
+                return CupertinoPageScaffold(
+                    backgroundColor: CupertinoColors.systemGroupedBackground,
+                    // resizeToAvoidBottomInset: true,
+                    child: TodoList());
+                // return TodoList();
+              },
+            );
+          case 1:
+            return CupertinoTabView(
+              builder: (BuildContext context) {
+                // return TodoSettings();
+                return CupertinoPageScaffold(child: TodoSettings());
+              },
+            );
+          default:
+            throw new Exception("Page Not Found Error");
+        }
       },
     );
   }
@@ -56,44 +99,4 @@ CupertinoNavigationBar buildNavigationBar(String title) {
     //   },
     // ),
   );
-}
-
-///主界面
-class TodoMain extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.home),
-            // label: "首页",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.settings),
-            // label: "设置",
-          ),
-        ],
-      ),
-      tabBuilder: (BuildContext context, int index) {
-        switch (index) {
-          case 0:
-            return CupertinoTabView(
-              builder: (BuildContext context) {
-                return CupertinoPageScaffold(child: TodoList());
-                // return TodoList();
-              },
-            );
-          case 1:
-            return CupertinoTabView(
-              builder: (BuildContext context) {
-                return TodoSettings();
-              },
-            );
-          default:
-            throw new Exception("Page Not Found Error");
-        }
-      },
-    );
-  }
 }

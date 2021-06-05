@@ -128,6 +128,37 @@ class _TodoListState extends State<TodoList> {
     return _toDismiss;
   }
 
+  _bgFormRow() {
+    return CupertinoFormRow(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+      child: Container(
+        padding: const EdgeInsets.only(left: 6.0, right: 6.0),
+        alignment: Alignment.centerLeft,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              child: Icon(
+                CupertinoIcons.star,
+                color: CupertinoColors.white,
+              ),
+            ),
+            Expanded(child: Container()),
+            Container(
+              alignment: Alignment.centerRight,
+              child: Icon(
+                CupertinoIcons.delete,
+                color: CupertinoColors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   ///生成TodoRow
   Dismissible _buildTodoRow(int index) {
     return Dismissible(
@@ -137,21 +168,11 @@ class _TodoListState extends State<TodoList> {
       resizeDuration: const Duration(milliseconds: 500),
       background: Container(
         color: CupertinoColors.activeBlue,
-        child: CupertinoListTile(
-          leading: Icon(
-            CupertinoIcons.star,
-            color: CupertinoColors.white,
-          ),
-        ),
+        child: _bgFormRow(),
       ),
       secondaryBackground: Container(
         color: CupertinoColors.destructiveRed,
-        child: CupertinoListTile(
-          trailing: Icon(
-            CupertinoIcons.delete,
-            color: CupertinoColors.white,
-          ),
-        ),
+        child: _bgFormRow(),
       ),
       child: todoItems[index],
     );
@@ -167,47 +188,11 @@ class _TodoListState extends State<TodoList> {
       background: Container(
         alignment: Alignment.centerLeft,
         color: CupertinoColors.activeBlue,
-        child: CupertinoFormRow(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
-          child: Container(
-            padding: const EdgeInsets.only(left: 6.0, right: 6.0),
-            alignment: Alignment.centerLeft,
-            child: Row(
-              children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    CupertinoIcons.star,
-                    color: CupertinoColors.white,
-                  ),
-                ),
-                Expanded(child: Container()),
-              ],
-            ),
-          ),
-        ),
+        child: _bgFormRow(),
       ),
       secondaryBackground: Container(
         color: CupertinoColors.destructiveRed,
-        child: CupertinoFormRow(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
-          child: Container(
-            padding: const EdgeInsets.only(left: 6.0, right: 6.0),
-            alignment: Alignment.centerLeft,
-            child: Row(
-              children: [
-                Expanded(child: Container()),
-                Container(
-                  alignment: Alignment.centerRight,
-                  child: Icon(
-                    CupertinoIcons.delete,
-                    color: CupertinoColors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        child: _bgFormRow(),
       ),
       child: doneItems[index],
     );

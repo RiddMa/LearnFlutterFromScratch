@@ -196,8 +196,7 @@ class _EditTodoState extends State<EditTodo> {
         children: [
           CupertinoTextFormFieldRow(
             controller: _noteController,
-            prefix: Text("Add Note"),
-            placeholder: "",
+            placeholder: "Add Note",
           ),
         ],
       ),

@@ -42,7 +42,7 @@ class _TodoListState extends State<TodoList> {
     DBProvider().insertTodoItem(_todoItem);
   }
 
-  void _updateTodoItem(TodoItem _todoItem, int index, bool done) {
+  void _updateTodoItem(TodoItem _todoItem, int index, bool done) async {
     if (done) {
       _todoItem.done = true;
       doneItems.add(_todoItem);
@@ -130,28 +130,37 @@ class _TodoListState extends State<TodoList> {
 
   _bgFormRow() {
     return CupertinoFormRow(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
       child: Container(
-        padding: const EdgeInsets.only(left: 6.0, right: 6.0),
+        padding: const EdgeInsets.only(left: 6.0, right: 6.0, top: 9.0),
         alignment: Alignment.centerLeft,
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
           children: [
-            Container(
-              alignment: Alignment.centerLeft,
-              child: Icon(
-                CupertinoIcons.star,
-                color: CupertinoColors.white,
-              ),
-            ),
-            Expanded(child: Container()),
-            Container(
-              alignment: Alignment.centerRight,
-              child: Icon(
-                CupertinoIcons.delete,
-                color: CupertinoColors.white,
-              ),
+            // Expanded(
+            //   child: Container(),
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Container(
+                  alignment: Alignment.centerLeft,
+                  child: Icon(
+                    CupertinoIcons.star,
+                    color: CupertinoColors.white,
+                  ),
+                ),
+                Expanded(child: Container()),
+                Container(
+                  alignment: Alignment.centerRight,
+                  child: Icon(
+                    CupertinoIcons.delete,
+                    color: CupertinoColors.white,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -165,7 +174,8 @@ class _TodoListState extends State<TodoList> {
       key: todoItems[index].key!,
       confirmDismiss: (direction) => _handleTodoDismiss(direction, index),
       // onDismissed: (direction) => _handleDismiss(direction, index),
-      resizeDuration: const Duration(milliseconds: 500),
+      // resizeDuration: const Duration(milliseconds: 1000),
+      // movementDuration: const Duration(milliseconds: 1000),
       background: Container(
         color: CupertinoColors.activeBlue,
         child: _bgFormRow(),
@@ -197,22 +207,6 @@ class _TodoListState extends State<TodoList> {
       child: doneItems[index],
     );
   }
-
-  // ///生成主页TodoList项
-  // _todoListSliverChildBuilderDelegate() {
-  //   return SliverChildBuilderDelegate(
-  //     (BuildContext context, int index) {
-  //       if (index < todoItems.length) {
-  //         return _buildTodoRow(index);
-  //       } else if (index > todoItems.length) {
-  //         return _buildDoneRow(index - 1 - todoItems.length);
-  //       } else if (index == todoItems.length) {
-  //         return CupertinoFormRow(child: Text('Done'));
-  //       }
-  //     },
-  //     childCount: (todoItems.length + doneItems.length + 1),
-  //   );
-  // }
 
   ///生成主页TodoList项
   _todoListSliverChildBuilderDelegate() {

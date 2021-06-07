@@ -172,7 +172,7 @@ class _TodoItemState extends State<TodoItem> {
         behavior: HitTestBehavior.opaque,
         onTap: _handleItemTap,
         child: Container(
-            padding: const EdgeInsets.only(left: 6.0,right: 6.0),
+            padding: const EdgeInsets.only(left: 6.0, right: 6.0),
             alignment: Alignment.centerLeft,
             child: Row(
               // mainAxisSize: MainAxisSize.min,

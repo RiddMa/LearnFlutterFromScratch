@@ -18,7 +18,7 @@ class _TodoSettingsState extends State<TodoSettings> {
 
   _todoSettingsSliverChildBuilderDelegate() {
     List<Widget> settingItems = [
-      CupertinoFormSection(
+      CupertinoFormSection.insetGrouped(
         header: Text('Personal'),
         children: [
           CupertinoFormRow(
@@ -29,7 +29,7 @@ class _TodoSettingsState extends State<TodoSettings> {
           )
         ],
       ),
-      CupertinoFormSection(
+      CupertinoFormSection.insetGrouped(
         header: Text('General'),
         children: [
           CupertinoFormRow(
@@ -40,7 +40,7 @@ class _TodoSettingsState extends State<TodoSettings> {
           )
         ],
       ),
-      CupertinoFormSection(
+      CupertinoFormSection.insetGrouped(
         header: Text('Lists'),
         children: [
           CupertinoFormRow(
@@ -51,7 +51,7 @@ class _TodoSettingsState extends State<TodoSettings> {
           )
         ],
       ),
-      CupertinoFormSection(
+      CupertinoFormSection.insetGrouped(
         header: Text('Notifications'),
         children: [
           CupertinoFormRow(
@@ -62,7 +62,7 @@ class _TodoSettingsState extends State<TodoSettings> {
           )
         ],
       ),
-      CupertinoFormSection(
+      CupertinoFormSection.insetGrouped(
         header: Text('About'),
         children: [
           CupertinoFormRow(

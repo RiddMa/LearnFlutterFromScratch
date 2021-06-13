@@ -235,7 +235,7 @@ class _EditTodoState extends State<EditTodo> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: _newTodoNavigationBar(widget.mode + ' Todo Item'),
+      navigationBar: _newTodoNavigationBar(' ' + widget.mode + ' Todo '),
       child: CustomScrollView(
         slivers: <Widget>[
           SliverSafeArea(
